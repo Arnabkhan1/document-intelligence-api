@@ -1,3 +1,4 @@
+
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -26,7 +27,8 @@ app = FastAPI(
     title=settings.app_name,
     version=settings.app_version,
     description=(
-        "An intelligent document processing, retrieval and question-answering platform."
+        "An intelligent document processing, "
+        "retrieval and question-answering platform."
     ),
     debug=settings.debug,
     lifespan=lifespan,
