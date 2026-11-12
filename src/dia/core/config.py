@@ -1,8 +1,6 @@
-
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -32,9 +30,7 @@ class Settings(BaseSettings):
     api_v1_prefix: str = "/api/v1"
 
     # Logging
-    log_level: Literal[
-        "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"
-    ] = "INFO"
+    log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
 
 
 @lru_cache

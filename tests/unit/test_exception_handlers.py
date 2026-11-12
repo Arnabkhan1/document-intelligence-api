@@ -1,6 +1,4 @@
-
 from fastapi import FastAPI
-
 from fastapi.testclient import TestClient
 
 from dia.core.exception_handlers import register_exception_handlers
@@ -9,18 +7,19 @@ from dia.core.exceptions import (
     DocumentNotFoundError,
 )
 
+# Create a separate application for testing.
+exception_test_app = FastAPI()
 
-test_app = FastAPI()
+# Register global exception handlers.
+register_exception_handlers(exception_test_app)
 
-register_exception_handlers(test_app)
 
-
-@test_app.get("/test-document-error")
+@exception_test_app.get("/test-document-error")
 async def document_error():
     raise DocumentNotFoundError()
 
 
-@test_app.get("/test-custom-error")
+@exception_test_app.get("/test-custom-error")
 async def custom_error():
     raise AppException(
         message="Custom test error",
@@ -29,18 +28,19 @@ async def custom_error():
     )
 
 
-@test_app.get("/test-validation")
+@exception_test_app.get("/test-validation")
 async def validation_error(quantity: int):
     return {"quantity": quantity}
 
 
-@test_app.get("/test-unexpected-error")
+@exception_test_app.get("/test-unexpected-error")
 async def unexpected_error():
     raise RuntimeError("Internal database failure")
 
 
+# Configure TestClient to capture server errors as HTTP responses.
 client = TestClient(
-    test_app,
+    exception_test_app,
     raise_server_exceptions=False,
 )
 
@@ -54,6 +54,7 @@ def test_document_not_found_error():
 
     assert data["success"] is False
     assert data["error"]["code"] == "DOCUMENT_NOT_FOUND"
+    assert data["error"]["message"] == "The requested document was not found."
 
 
 def test_custom_application_error():
@@ -63,7 +64,9 @@ def test_custom_application_error():
 
     data = response.json()
 
+    assert data["success"] is False
     assert data["error"]["code"] == "CUSTOM_ERROR"
+    assert data["error"]["message"] == "Custom test error"
 
 
 def test_validation_error():
@@ -78,6 +81,8 @@ def test_validation_error():
 
     assert data["success"] is False
     assert data["error"]["code"] == "VALIDATION_ERROR"
+    assert data["error"]["message"] == ("The request contains invalid data.")
+    assert isinstance(data["error"]["details"], list)
 
 
 def test_unexpected_error():
@@ -90,5 +95,5 @@ def test_unexpected_error():
     assert data["success"] is False
     assert data["error"]["code"] == "INTERNAL_SERVER_ERROR"
 
-    # Internal exception details must not reach the client.
+    # Internal exception details must never be exposed to clients.
     assert "database failure" not in response.text.lower()

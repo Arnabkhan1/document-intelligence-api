@@ -1,11 +1,11 @@
-
 import logging
 
 from fastapi import FastAPI, Request
+from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
-from fastapi.encoders import jsonable_encoder
+
 from dia.core.exceptions import AppException
 
 logger = logging.getLogger(__name__)
@@ -20,7 +20,7 @@ def register_exception_handlers(app: FastAPI) -> None:
     async def handle_application_exception(
         request: Request,
         exc: AppException,
-    ):
+    ) -> JSONResponse:
         logger.warning(
             "Application error | code=%s | path=%s",
             exc.code,
@@ -42,7 +42,7 @@ def register_exception_handlers(app: FastAPI) -> None:
     async def handle_validation_exception(
         request: Request,
         exc: RequestValidationError,
-    ):
+    ) -> JSONResponse:
         logger.warning(
             "Request validation failed | path=%s",
             request.url.path,
@@ -64,7 +64,7 @@ def register_exception_handlers(app: FastAPI) -> None:
     async def handle_http_exception(
         request: Request,
         exc: StarletteHTTPException,
-    ):
+    ) -> JSONResponse:
         logger.warning(
             "HTTP error | status=%s | path=%s",
             exc.status_code,
@@ -87,7 +87,7 @@ def register_exception_handlers(app: FastAPI) -> None:
     async def handle_unexpected_exception(
         request: Request,
         exc: Exception,
-    ):
+    ) -> JSONResponse:
         logger.exception(
             "Unexpected server error | path=%s",
             request.url.path,
