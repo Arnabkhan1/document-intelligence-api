@@ -1,13 +1,21 @@
 
 from fastapi import FastAPI
 
+
+from fastapi import FastAPI
+
+from dia.core.config import get_settings
+
+settings = get_settings()
+
 app = FastAPI(
-    title="Document Intelligence API",
+    title=settings.app_name,
+    version=settings.app_version,
     description=(
         "An intelligent document processing, "
         "retrieval and question-answering platform."
     ),
-    version="0.1.0",
+    debug=settings.debug,
 )
 
 
@@ -15,6 +23,7 @@ app = FastAPI(
 async def health_check():
     return {
         "status": "healthy",
-        "service": "document-intelligence-api",
-        "version": "0.1.0",
+        "service": settings.app_name,
+        "version": settings.app_version,
+        "environment": settings.app_env,
     }
