@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+from dia.api.v1.router import api_router
 from dia.core.config import get_settings
 from dia.core.exception_handlers import register_exception_handlers
 from dia.core.logger import get_logger, setup_logging
@@ -34,14 +35,8 @@ app = FastAPI(
 
 register_exception_handlers(app)
 
-
-@app.get("/health", tags=["Health"])
-async def health_check():
-    logger.info("Health check requested")
-
-    return {
-        "status": "healthy",
-        "service": settings.app_name,
-        "version": settings.app_version,
-        "environment": settings.app_env,
-    }
+# Register versioned API routes.
+app.include_router(
+    api_router,
+    prefix=settings.api_v1_prefix,
+)
