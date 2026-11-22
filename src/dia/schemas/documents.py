@@ -1,6 +1,7 @@
+from datetime import datetime
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class DocumentValidationRequest(BaseModel):
@@ -21,8 +22,32 @@ class DocumentValidationResponse(BaseModel):
 
 
 class DocumentUploadResponse(BaseModel):
+    id: str
     filename: str
     stored_filename: str
     size_bytes: int
     content_type: str
     status: Literal["uploaded"]
+
+
+class DocumentResponse(BaseModel):
+    id: str
+    filename: str
+    stored_filename: str
+    content_type: str
+    size_bytes: int
+    status: str
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class DocumentListResponse(BaseModel):
+    total: int
+    documents: list[DocumentResponse]
+
+
+class DocumentDeleteResponse(BaseModel):
+    id: str
+    message: str
+    status: Literal["deleted"]

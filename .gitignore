@@ -38,3 +38,6 @@ temp/
 storage/
 # Uploaded documents
 storage/
+
+# Local databases
+*.db

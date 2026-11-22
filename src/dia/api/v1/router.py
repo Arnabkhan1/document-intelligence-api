@@ -1,4 +1,3 @@
-
 from fastapi import APIRouter
 
 from dia.api.v1.endpoints import documents, health, system
